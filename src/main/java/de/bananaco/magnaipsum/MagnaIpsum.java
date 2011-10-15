@@ -18,10 +18,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -38,6 +42,8 @@ public class MagnaIpsum extends JavaPlugin {
     public HashMap<String, aObj> aSupportedPlugins = new HashMap();
     //Used when conducting searches for aPluginator
     public ArrayList<aObj> supPlugs = new ArrayList();
+    public static boolean isFinishedDownloading = false;
+    public BufferedReader in;
 
     @Override
     public void onDisable() {
@@ -50,6 +56,8 @@ public class MagnaIpsum extends JavaPlugin {
         //Get aPluginator supported plugins from site
         ThreadRunner.runThread(new aSupportThread(this));
 
+        getServer().getPluginManager().addPermission(new Permission("magna.ipsum", PermissionDefault.OP));
+        System.out.println("[MagnaIpsum] Command node registered: magna.ipsum");
         this.c = new Configuration(this);
         c.load();
         this.whitelist = c.getBoolean("whitelist", false);
@@ -115,7 +123,7 @@ public class MagnaIpsum extends JavaPlugin {
                 //Replace underscores in the plugin name argument with spaces
                 arg = arg.replace("_", " ");
                 pl = pm.getPlugin(arg);
-                
+
                 //Check if is enabled
                 if (pl == null) {
                     sender.sendMessage(ChatColor.RED + "--That plugin is not enabled on this server!");
@@ -426,9 +434,30 @@ public class MagnaIpsum extends JavaPlugin {
 
         //Checks for BukkitDev URL
         if (!url.toString().endsWith(".jar")) {
-            BufferedReader in = new BufferedReader(
+            in = new BufferedReader(
                     new InputStreamReader(
                     url.openStream()));
+            
+            //timeout timer
+            Timer timer = new Timer(true);
+            timer.schedule(new TimerTask() {
+
+                @Override
+                public void run() {
+                    if (MagnaIpsum.isFinishedDownloading) {
+                        //System.out.println("[MagnaIpsum] Success! :D");
+                        MagnaIpsum.isFinishedDownloading = false;
+                        return;
+                    }
+                    try {
+                        System.out.println("[MagnaIpsum] Error connecting to BukkitDev! Closing connection.");
+                        in.close();
+                    } catch (IOException ex) {
+                        System.out.println("Something just went wrong... REALLY wrong. And it's probably my fault. This error should never show if the URL is correct");
+                        ex.printStackTrace();
+                    }
+                }
+            }, 5 * 1000); //delay in seconds * 1000 = seconds
             while ((inLine = in.readLine()) != null) {
                 if (inLine.contains("/files/")) {
                     x++;
@@ -478,6 +507,7 @@ public class MagnaIpsum extends JavaPlugin {
             return false;
         } finally {
             try {
+                MagnaIpsum.isFinishedDownloading = true;
                 if (iis != null) {
                     iis.close();
                 }

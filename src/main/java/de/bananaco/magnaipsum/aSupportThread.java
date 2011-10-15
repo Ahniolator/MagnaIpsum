@@ -124,6 +124,8 @@ public class aSupportThread implements Runnable {
         in = new BufferedReader(
                 new InputStreamReader(
                 url.openStream()));
+        
+        //timeout timer
         Timer timer = new Timer(true);
         timer.schedule(new TimerTask() {
 
@@ -131,6 +133,7 @@ public class aSupportThread implements Runnable {
             public void run() {
                 if (aSupportThread.isFinished) {
                     //System.out.println("[MagnaIpsum] Success! :D");
+                    aSupportThread.isFinished = false;
                     return;
                 }
                 try {
@@ -141,7 +144,7 @@ public class aSupportThread implements Runnable {
                     ex.printStackTrace();
                 }
             }
-        }, 20 * 1000); //delay in seconds
+        }, 20 * 1000); //delay in seconds delay in seconds * 1000 = seconds
         for (String string = null; ((string = in.readLine()) != null); string = in.readLine()) {
             String[] array = string.split(";");
             if (array[0].startsWith("#")) {

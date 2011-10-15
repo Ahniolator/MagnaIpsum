@@ -21,8 +21,3 @@ commands:
   buninstall:
     description: uninstall a plugin
     usage: /<command> plugin
-#Moved permissions here
-permissions:
-  magna.ipsum:
-    description: Gives access to MagnaIpsum commands
-    default: op
