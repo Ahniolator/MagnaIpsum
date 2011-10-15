@@ -1,0 +1,28 @@
+name: MagnaIpsum
+main: de.bananaco.magnaipsum.MagnaIpsum
+author: codename_B
+version: 0.6
+#Edited all commands to use <command>. Still returns as /commandname plugin
+#Changed bupdate command to support OPTIONAL plugin specification. If they
+#specify a plugin, it will download the latest update for it.
+commands:
+  bsearch:
+    description: search for a plugin
+    usage: /<command> plugin/[key + keywords]
+  binstall:
+    description: install a plugin
+    usage: /<command> plugin
+  bupdate:
+    description: checks all installed plugins for an update
+    usage: /<command> [plugin]
+  bctrlz:
+    description: rolls back a plugin to the previous installed version
+    usage: /<command> plugin
+  buninstall:
+    description: uninstall a plugin
+    usage: /<command> plugin
+#Moved permissions here
+permissions:
+  magna.ipsum:
+    description: Gives access to MagnaIpsum commands
+    default: op
